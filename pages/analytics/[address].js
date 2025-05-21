@@ -274,19 +274,19 @@ export default function AnalyticsPage() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       
-      <div className="container mx-auto max-w-4xl px-4 py-8 md:py-12 relative z-10 content-container">
+      <div className="container mx-auto max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl px-1 xs:px-2 sm:px-4 py-4 md:py-8 relative z-10 content-container">
         {/* Chain Selector Dropdown */}
-        <div className="flex justify-center mb-8">
-          <div className="relative inline-block w-56">
+        <div className="flex justify-center mb-4 sm:mb-8">
+          <div className="relative inline-block w-full max-w-[220px] xs:max-w-xs sm:max-w-sm md:max-w-md">
             <button
               type="button"
-              className={`w-full flex items-center justify-between font-pixel text-lg rounded-lg px-4 py-2 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 ${chainTheme.color} text-white shadow transition`}
+              className={`w-full flex items-center justify-between font-pixel text-xs xs:text-base sm:text-lg rounded-lg px-2 xs:px-3 sm:px-4 py-2 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 ${chainTheme.color} text-white shadow transition`}
               onClick={() => setDropdownOpen(v => !v)}
               aria-haspopup="listbox"
-              aria-expanded={dropdownOpen ? 'true' : 'false'}
+              aria-expanded={dropdownOpen ? 'true' : 'false'}"
             >
               <span className="flex items-center gap-2">
-                <ChainIcon chain={selectedChain} size={22} />
+                <ChainIcon chain={selectedChain} size={18} />
                 {CHAIN_OPTIONS.find(opt => opt.value === selectedChain)?.label}
               </span>
               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
@@ -296,12 +296,12 @@ export default function AnalyticsPage() {
                 {CHAIN_OPTIONS.map(opt => (
                   <li
                     key={opt.value}
-                    className={`flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-800 font-pixel text-lg ${opt.value === selectedChain ? 'bg-gray-900' : ''}`}
+                    className={`flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-800 font-pixel text-xs xs:text-base sm:text-lg ${opt.value === selectedChain ? 'bg-gray-900' : ''}`}
                     onClick={() => { setSelectedChain(opt.value); setDropdownOpen(false); }}
                     role="option"
                     aria-selected={opt.value === selectedChain}
                   >
-                    <ChainIcon chain={opt.value} size={20} />
+                    <ChainIcon chain={opt.value} size={16} />
                     {opt.label}
                   </li>
                 ))}
@@ -314,17 +314,14 @@ export default function AnalyticsPage() {
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="text-center mb-8 md:mb-12"
+            className="text-center mb-6 sm:mb-8 md:mb-12"
           >
             <div className="flex flex-col items-center justify-center mb-2">
-              <span className="text-4xl md:text-5xl mb-1">{rankObj.emoji}</span>
-              <span className={`font-pixel text-2xl md:text-3xl mb-1 ${chainTheme.accent}`}>{rankObj.name}</span>
+              <span className="text-3xl xs:text-4xl md:text-5xl mb-1">{rankObj.emoji}</span>
+              <span className={`font-pixel text-lg xs:text-xl md:text-3xl mb-1 ${chainTheme.accent}`}>{rankObj.name}</span>
             </div>
-            <div className="flex items-center justify-center gap-3 mb-4">
-              {/* {walletData.address && (
-                <Avatar address={walletData.address} size={10} />
-              )} */}
-              <h2 className="text-xl sm:text-2xl font-pixel text-gray-300">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-4">
+              <h2 className="text-base xs:text-xl sm:text-2xl font-pixel text-gray-300">
                 {walletData.profileName || displayAddress}
               </h2>
             </div>
@@ -338,7 +335,7 @@ export default function AnalyticsPage() {
               )}
               {/* Show BaseName if found and user entered an address */}
               {walletData.baseName && walletData.baseName.endsWith('.base.eth') && walletData.baseName !== displayAddress && (
-                <div className="mt-2 text-base-blue font-pixel text-sm">
+                <div className="mt-2 text-base-blue font-pixel text-xs sm:text-sm">
                   BaseName: <span className="text-white">{walletData.baseName}</span>
                 </div>
               )}
@@ -349,45 +346,45 @@ export default function AnalyticsPage() {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-1 gap-8 mb-12 md:mb-16 max-w-3xl mx-auto"
+            className="grid grid-cols-1 gap-4 sm:gap-8 mb-8 sm:mb-12 md:mb-16 max-w-xs sm:max-w-2xl mx-auto"
           >
             {/* Transactions Card */}
-            <motion.div variants={itemVariants} className="glass-card p-6 md:p-8">
+            <motion.div variants={itemVariants} className="glass-card p-4 xs:p-6 md:p-8">
               <div className="text-center">
                 <h2 className="value-display">
                   {walletData.transactionCount}
                 </h2>
-                <p className="font-pixel text-2xl md:text-3xl mb-4 text-gradient">
+                <p className="font-pixel text-lg xs:text-xl md:text-2xl mb-2 sm:mb-4 text-gradient">
                   Txns
                 </p>
-                <p className="text-sm font-pixel text-gray-400">
+                <p className="text-xs sm:text-sm font-pixel text-gray-400">
                   {walletData.outgoingTransactions} outgoing transactions<br />on Base blockchain
                 </p>
               </div>
             </motion.div>
 
             {/* Volume Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
               {/* Incoming ETH Card */}
-              <motion.div variants={itemVariants} className="glass-card p-6 relative overflow-hidden group">
+              <motion.div variants={itemVariants} className="glass-card p-4 sm:p-6 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-pixel text-lg text-yellow-400">Incoming ETH</h3>
-                    <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center justify-between mb-2 sm:mb-4">
+                    <h3 className="font-pixel text-base sm:text-lg text-yellow-400">Incoming ETH</h3>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                       </svg>
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     <div className="flex items-baseline justify-between">
-                      <span className="text-2xl font-bold font-pixel text-yellow-400">
+                      <span className="text-lg sm:text-2xl font-bold font-pixel text-yellow-400">
                         {parseFloat(walletData.ethVolumeIn).toFixed(4)}
                       </span>
-                      <span className="text-sm font-pixel text-yellow-400/70">{getNativeSymbol(selectedChain)}</span>
+                      <span className="text-xs sm:text-sm font-pixel text-yellow-400/70">{getNativeSymbol(selectedChain)}</span>
                     </div>
-                    <div className="text-sm font-pixel text-gray-400">
+                    <div className="text-xs sm:text-sm font-pixel text-gray-400">
                       ${walletData.ethVolumeInUsd}
                     </div>
                   </div>
@@ -395,25 +392,25 @@ export default function AnalyticsPage() {
               </motion.div>
 
               {/* Outgoing ETH Card */}
-              <motion.div variants={itemVariants} className="glass-card p-6 relative overflow-hidden group">
+              <motion.div variants={itemVariants} className="glass-card p-4 sm:p-6 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-pixel text-lg text-red-400">Outgoing ETH</h3>
-                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center justify-between mb-2 sm:mb-4">
+                    <h3 className="font-pixel text-base sm:text-lg text-red-400">Outgoing ETH</h3>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                       </svg>
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     <div className="flex items-baseline justify-between">
-                      <span className="text-2xl font-bold font-pixel text-red-400">
+                      <span className="text-lg sm:text-2xl font-bold font-pixel text-red-400">
                         {parseFloat(walletData.ethVolumeOut).toFixed(4)}
                       </span>
-                      <span className="text-sm font-pixel text-red-400/70">{getNativeSymbol(selectedChain)}</span>
+                      <span className="text-xs sm:text-sm font-pixel text-red-400/70">{getNativeSymbol(selectedChain)}</span>
                     </div>
-                    <div className="text-sm font-pixel text-gray-400">
+                    <div className="text-xs sm:text-sm font-pixel text-gray-400">
                       ${walletData.ethVolumeOutUsd}
                     </div>
                   </div>
@@ -421,25 +418,25 @@ export default function AnalyticsPage() {
               </motion.div>
 
               {/* Incoming USDC Card */}
-              <motion.div variants={itemVariants} className="glass-card p-6 relative overflow-hidden group">
+              <motion.div variants={itemVariants} className="glass-card p-4 sm:p-6 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-pixel text-lg text-blue-400">Incoming USDC</h3>
-                    <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center justify-between mb-2 sm:mb-4">
+                    <h3 className="font-pixel text-base sm:text-lg text-blue-400">Incoming USDC</h3>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                       </svg>
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     <div className="flex items-baseline justify-between">
-                      <span className="text-2xl font-bold font-pixel text-blue-400">
+                      <span className="text-lg sm:text-2xl font-bold font-pixel text-blue-400">
                         {parseFloat(walletData.usdcVolumeIn).toFixed(2)}
                       </span>
-                      <span className="text-sm font-pixel text-blue-400/70">USDC</span>
+                      <span className="text-xs sm:text-sm font-pixel text-blue-400/70">USDC</span>
                     </div>
-                    <div className="text-sm font-pixel text-gray-400">
+                    <div className="text-xs sm:text-sm font-pixel text-gray-400">
                       ${walletData.usdcVolumeInUsd}
                     </div>
                   </div>
@@ -447,25 +444,25 @@ export default function AnalyticsPage() {
               </motion.div>
 
               {/* Outgoing USDC Card */}
-              <motion.div variants={itemVariants} className="glass-card p-6 relative overflow-hidden group">
+              <motion.div variants={itemVariants} className="glass-card p-4 sm:p-6 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-pixel text-lg text-purple-400">Outgoing USDC</h3>
-                    <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center justify-between mb-2 sm:mb-4">
+                    <h3 className="font-pixel text-base sm:text-lg text-purple-400">Outgoing USDC</h3>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                       </svg>
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     <div className="flex items-baseline justify-between">
-                      <span className="text-2xl font-bold font-pixel  text-purple-400">
+                      <span className="text-lg sm:text-2xl font-bold font-pixel  text-purple-400">
                         {parseFloat(walletData.usdcVolumeOut).toFixed(2)}
                       </span>
-                      <span className="text-sm font-pixel text-purple-400/70">USDC</span>
+                      <span className="text-xs sm:text-sm font-pixel text-purple-400/70">USDC</span>
                     </div>
-                    <div className="text-sm font-pixel text-gray-400">
+                    <div className="text-xs sm:text-sm font-pixel text-gray-400">
                       ${walletData.usdcVolumeOutUsd}
                     </div>
                   </div>
@@ -474,18 +471,18 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Gas Card */}
-            <motion.div variants={itemVariants} className="glass-card p-6 md:p-8">
+            <motion.div variants={itemVariants} className="glass-card p-4 xs:p-6 md:p-8">
               <div className="text-center">
                 <h2 className="value-display">
                   {parseFloat(walletData.gasSpent.ethAmount).toFixed(4)} <span className="text-yellow-400">{getNativeSymbol(selectedChain)}</span>
                 </h2>
-                <p className="usd-value mb-2">
+                <p className="usd-value mb-1 sm:mb-2">
                   ${walletData.gasSpent.usdAmount}
                 </p>
-                <p className="font-pixel text-xl md:text-2xl mb-4 text-gradient">
+                <p className="font-pixel text-base md:text-2xl mb-2 sm:mb-4 text-gradient">
                   Gas Spent
                 </p>
-                <p className="text-sm font-pixel text-gray-400">
+                <p className="text-xs sm:text-sm font-pixel text-gray-400">
                   Current ETH price: ${walletData.ethPrice?.toFixed(2) || "N/A"}
                   {walletData.ethPrice && Number(walletData.ethPrice) === 3000 && (
                     <span className="text-red-400 ml-2">(Not live - using fallback)</span>
