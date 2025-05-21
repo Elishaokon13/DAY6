@@ -138,6 +138,7 @@ export async function POST(req: Request) {
         const result = await verifyOnExplorer(bytecode, abi, explorerConfig, metadata);
         results.push({
           ...result,
+          status: result.status === "success" ? "success" : "error",
           optimization: metadata,
           warnings: warnings.length > 0 ? warnings : undefined,
         });
