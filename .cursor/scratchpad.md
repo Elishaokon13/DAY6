@@ -225,7 +225,7 @@ Inspired by a tweet from BD at Alchemy, the goal is to build a feature similar t
 
 ### High-level Task Breakdown
 1. **Backend: Transaction Grouping Logic**
-   - [ ] Implement a function to group a wallet's transactions by day (UTC) for a given date range and chain.
+   - [x] Implement a function to group a wallet's transactions by day (UTC) for a given date range and chain.
      - Success Criteria: Given a wallet and date range, returns a map of dates to transaction counts.
    - [ ] Add API endpoint to fetch onchain activity streak data for a wallet (optionally per chain or aggregate).
      - Success Criteria: API returns daily activity, current streak, longest streak, and total active days.
@@ -253,7 +253,7 @@ Inspired by a tweet from BD at Alchemy, the goal is to build a feature similar t
      - Success Criteria: Share button generates a pre-filled tweet or message with the streak image/link.
 
 ### Project Status Board (Onchain Commit Tracker)
-- [ ] Backend: Group transactions by day for a wallet
+- [x] Backend: Group transactions by day for a wallet
 - [ ] Backend: API endpoint for streak data
 - [ ] Backend: Optimize for large wallets
 - [ ] Frontend: Calendar heatmap visualization
@@ -262,3 +262,10 @@ Inspired by a tweet from BD at Alchemy, the goal is to build a feature similar t
 - [ ] Testing: Backend logic
 - [ ] Testing: Frontend and integration
 - [ ] (Optional) Leaderboard and social sharing 
+
+## Current Status / Progress Tracking (Onchain Commit Tracker)
+- Implemented `groupTransactionsByDay` in `lib/blockchain.js`. This function fetches all transactions for a wallet/chain and returns a map of 'YYYY-MM-DD' (UTC) to transaction count, with optional date range filtering.
+- Next: Add API endpoint to expose this data and calculate streaks (current, longest, total active days).
+
+## Executor's Feedback or Assistance Requests (Onchain Commit Tracker)
+- The grouping function is complete and ready for use. Please confirm if you want to proceed with the API endpoint for streak data, or if you want to test the grouping logic first. 
