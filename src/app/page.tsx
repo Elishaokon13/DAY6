@@ -58,11 +58,10 @@ export default function Home() {
   // Placeholder for result card grid
   const ResultGrid = ({ data }: { data: VerificationResult }) => (
     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-      {/* Example result card */}
       <div className="rounded-xl bg-gradient-to-br from-[#232526] to-[#414345] p-4 shadow-lg flex flex-col gap-2 border border-white/10">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-white">Status:</span>
-          <span className="px-2 py-1 rounded bg-green-700 text-xs text-white">Verified</span>
+          <span className="px-2 py-1 rounded bg-green-700 text-xs text-white">{data.status}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-white">Network:</span>
