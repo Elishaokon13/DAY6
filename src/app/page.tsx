@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { cn } from "../../../lib/utils";
+import { cn } from "./lib/utils";
 
 // @ts-expect-error: monaco-editor types are not available
 const MonacoEditor: any = dynamic(() => import("@monaco-editor/react"), { ssr: false });
