@@ -105,7 +105,7 @@ export default function OnchainHeatmap({ dailyActivity = {}, currentStreak = 0, 
       </div>
 
       {/* Heatmap Grid */}
-      <div className="flex">
+      <div className="flex overflow-x-hidden max-w-full">
         {/* Day-of-week Labels */}
         <div className="flex flex-col mr-2 sm:mr-3 mt-1">
           {DAY_LABELS.map((label, i) => (
@@ -120,12 +120,10 @@ export default function OnchainHeatmap({ dailyActivity = {}, currentStreak = 0, 
         </div>
 
         {/* Heatmap */}
-        <div className="flex overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {/* Hide scrollbar for Webkit browsers */}
+        <div className="flex overflow-x-auto w-fit" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <style jsx>{`
-            .scrollbar-hide::-webkit-scrollbar {
-              display: none;
-            }
+            .w-fit::-webkit-scrollbar { display: none; }
+            .w-fit { -ms-overflow-style: none; scrollbar-width: none; }
           `}</style>
           {weeks.map((week, wi) => (
             <div key={wi} className="flex flex-col">
