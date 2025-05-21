@@ -22,20 +22,6 @@ export default function Home() {
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Placeholder for animated button
-  const AnimatedButton = ({
-    children,
-    ...props
-  }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
-    <button
-      {...props}
-      className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium transition-all duration-300 rounded-xl group bg-gradient-to-br from-[#232526] to-[#414345] hover:from-[#232526] hover:to-[#232526] text-white shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-    >
-      <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-40 transition-all duration-300" />
-      <span className="relative z-10">{children}</span>
-    </button>
-  );
-
   // Placeholder for progress bar
   const Progress = () => (
     <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden mt-4">
