@@ -64,6 +64,7 @@ The goal is to build a full-stack, type-safe Contract Verification-as-a-Service 
 # Current Status / Progress Tracking
 
 - Planning phase: Initial breakdown complete. Awaiting user review/approval to proceed with implementation.
+- All files have been moved to the root folder as per user update. Both backend and frontend files will be placed in the root directory. The backend will be implemented as server.ts in the root.
 
 # Executor's Feedback or Assistance Requests
 
