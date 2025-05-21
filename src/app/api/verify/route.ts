@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import fetch from 'node-fetch';
 import solc from 'solc';
-import { ethers } from 'ethers';
+import { isAddress } from 'ethers';
 
 // Types for request and response
 interface VerifyRequest {
@@ -27,6 +27,11 @@ interface ExplorerConfig {
   url: string;
   key: string | undefined;
   explorer: string;
+}
+
+interface SolcError {
+  severity: string;
+  formattedMessage: string;
 }
 
 // Helper: Get explorer API URL and key
@@ -62,6 +67,11 @@ function compileSourceCode(
   optimizationRuns: number = 200,
 ): { bytecode: string; abi: string; optimization: VerifyResponse['optimization'] } {
   try {
+    // Validate compiler version format (e.g., v0.8.20)
+    if (!/^v?\d+\.\d+\.\d+$/.test(compilerVersion)) {
+      throw new Error('Invalid compiler version format');
+    }
+
     const input = {
       language: 'Solidity',
       sources: { 'contract.sol': { content: sourceCode } },
@@ -71,12 +81,12 @@ function compileSourceCode(
       },
     };
 
-    // Load compiler version dynamically (requires solc version matching compilerVersion)
-    const solcCompiler = solc.compile(JSON.stringify(input), { version: compilerVersion });
-    const output = JSON.parse(solcCompiler);
+    // Note: solc.compile with dynamic version requires additional setup
+    // For production, use solc.loadRemoteVersion(compilerVersion)
+    const output = JSON.parse(solc.compile(JSON.stringify(input)));
 
-    if (output.errors && output.errors.some((err: any) => err.severity === 'error')) {
-      throw new Error('Compilation failed: ' + JSON.stringify(output.errors));
+    if (output.errors?.some((err: SolcError) => err.severity === 'error')) {
+      throw new Error(`Compilation failed: ${JSON.stringify(output.errors)}`);
     }
 
     const contract = output.contracts['contract.sol'];
@@ -85,7 +95,7 @@ function compileSourceCode(
     const abi = JSON.stringify(contract[contractName].abi);
 
     return {
-      bytecode: '0x' + bytecode,
+      bytecode: `0x${bytecode}`,
       abi,
       optimization: {
         compilerVersion,
@@ -106,7 +116,6 @@ async function checkMetadataMismatch(
 ): Promise<string[]> {
   const warnings: string[] = [];
   try {
-    // Fetch on-chain bytecode for the contract address
     const explorerConfig = getExplorerConfig(network);
     const params = new URLSearchParams({
       module: 'contract',
@@ -114,6 +123,7 @@ async function checkMetadataMismatch(
       address: contractAddress,
       apikey: explorerConfig.key || '',
     });
+
     const response = await fetch(`${explorerConfig.url}?${params}`);
     const data = (await response.json()) as { result: { Code: string } };
 
@@ -134,7 +144,7 @@ async function checkMetadataMismatch(
 }
 
 // Helper: Verify contract on explorer
-async functionverifyOnExplorer(
+async function verifyOnExplorer(
   contractAddress: string,
   sourceCode: string,
   explorerConfig: ExplorerConfig,
@@ -146,7 +156,7 @@ async functionverifyOnExplorer(
     contractaddress: contractAddress,
     sourceCode,
     codeformat: 'solidity-single-file',
-    contractname: 'contract.sol', // Simplified
+    contractname: 'contract.sol',
     compilerversion: optimization.compilerVersion,
     optimizationUsed: optimization.enabled ? '1' : '0',
     runs: optimization.runs.toString(),
@@ -183,6 +193,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     const body = (await req.json()) as VerifyRequest;
     const { contractAddress, sourceCode, compilerVersion, networks } = body;
+
     if (!contractAddress || !sourceCode || !compilerVersion || !networks || networks.length === 0) {
       return NextResponse.json(
         { status: 'error', errors: ['Missing required fields'] },
@@ -191,7 +202,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     }
 
     // Validate contract address
-    if (!ethers.isAddress(contractAddress)) {
+    if (!isAddress(contractAddress)) {
       return NextResponse.json(
         { status: 'error', errors: ['Invalid contract address'] },
         { status: 400 },
@@ -218,3 +229,20 @@ export async function POST(req: Request): Promise<NextResponse> {
           optimization,
           warnings: warnings.length > 0 ? warnings : undefined,
         });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        results.push({
+          status: 'error',
+          explorer: network,
+          optimization,
+          errors: [message],
+        });
+      }
+    }
+
+    return NextResponse.json(results);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ status: 'error', errors: [message] }, { status: 500 });
+  }
+}
