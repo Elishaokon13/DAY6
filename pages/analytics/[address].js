@@ -83,6 +83,9 @@ export default function AnalyticsPage() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const resultsRef = useRef(null);
   const [downloading, setDownloading] = useState(false);
+  const [streakData, setStreakData] = useState(null);
+  const [streakLoading, setStreakLoading] = useState(true);
+  const [streakError, setStreakError] = useState(null);
 
   // Keep selectedChain in sync with query param
   useEffect(() => {
@@ -112,6 +115,30 @@ export default function AnalyticsPage() {
       }
     }
     fetchData();
+  }, [address, selectedChain]);
+
+  // Fetch streak data when address or selectedChain changes
+  useEffect(() => {
+    if (!address || !selectedChain) return;
+    async function fetchStreak() {
+      setStreakLoading(true);
+      setStreakError(null);
+      try {
+        const decodedAddress = decodeURIComponent(address);
+        const res = await fetch(`/api/streak?address=${decodedAddress}&chain=${selectedChain}`);
+        const data = await res.json();
+        if (!data.success) {
+          setStreakError(data.error || 'Failed to fetch streak data');
+        } else {
+          setStreakData(data);
+        }
+      } catch (err) {
+        setStreakError(err.message || 'Failed to load streak data');
+      } finally {
+        setStreakLoading(false);
+      }
+    }
+    fetchStreak();
   }, [address, selectedChain]);
 
   // Theme colors based on chain
@@ -494,6 +521,22 @@ export default function AnalyticsPage() {
             CHECK ANOTHER WALLET
           </motion.button>
         </motion.div>
+
+        {/* After walletData is loaded and before/after main stats, render the heatmap */}
+        <div className="my-8">
+          {streakLoading ? (
+            <div className="text-center text-gray-400 font-pixel">Loading onchain streak...</div>
+          ) : streakError ? (
+            <div className="text-center text-red-400 font-pixel">{streakError}</div>
+          ) : streakData ? (
+            <OnchainHeatmap
+              dailyActivity={streakData.dailyActivity}
+              currentStreak={streakData.currentStreak}
+              longestStreak={streakData.longestStreak}
+              totalActiveDays={streakData.totalActiveDays}
+            />
+          ) : null}
+        </div>
       </div>
     </BackgroundLines>
   );
