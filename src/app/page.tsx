@@ -1,7 +1,7 @@
 'use client'
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { cn } from "./lib/utils";
+import { cn } from "@/lib/utils";
 
 // @ts-ignore: No types for @monaco-editor/react
 const MonacoEditor = dynamic(
