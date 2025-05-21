@@ -3,8 +3,9 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { cn } from "./lib/utils";
 
-const MonacoEditor = dynamic<React.ComponentType<any>>(
-  () => import("@monaco-editor/react"),
+// @ts-ignore: No types for @monaco-editor/react
+const MonacoEditor = dynamic(
+  () => import("@monaco-editor/react").then(mod => mod.default),
   { ssr: false }
 );
 
