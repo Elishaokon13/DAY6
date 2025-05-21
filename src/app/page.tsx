@@ -91,15 +91,43 @@ export default function Home() {
       >
         <h1 className="text-2xl font-bold text-white text-center mb-2 tracking-tight">Contract Verification-as-a-Service</h1>
         <p className="text-center text-gray-300 mb-4">Paste your contract bytecode and ABI, select a network, and verify instantly across major block explorers.</p>
-        <label className="flex flex-col gap-2">
-          <span className="text-white font-medium">Contract Bytecode</span>
+        <label className="flex flex-col gap-2 relative">
+          <span className="text-white font-medium flex items-center gap-2">
+            Contract Bytecode
+            {/* Info icon with tooltip */}
+            <span className="relative group cursor-pointer">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" className="inline-block text-blue-400"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/><text x="12" y="16" textAnchor="middle" fontSize="12" fill="currentColor">i</text></svg>
+              <span className="absolute left-1/2 z-20 -translate-x-1/2 mt-2 w-64 rounded bg-gray-900 text-white text-xs px-3 py-2 opacity-0 group-hover:opacity-100 transition pointer-events-none shadow-xl">
+                <b>Contract Bytecode</b> is the compiled version of your smart contract, usually starting with <code>0x</code>.<br/><br/>
+                You can get it from your contract&apos;s deployment transaction or from block explorers like Etherscan.<br/><br/>
+                <b>Tip:</b> If you have the contract address, you can find the bytecode on Etherscan under the contract&apos;s Code tab.
+              </span>
+            </span>
+          </span>
           <textarea
             className="rounded-lg p-3 bg-black/40 text-white border border-white/10 focus:ring-2 focus:ring-blue-500 resize-y min-h-[80px]"
-            placeholder="Paste contract bytecode here..."
+            placeholder="e.g. 0x608060405234801561001057600080fd5b506040516101..."
             value={bytecode}
             onChange={e => setBytecode(e.target.value)}
             required
           />
+          <div className="flex items-center gap-2 mt-1">
+            <a
+              href="https://docs.etherscan.io/tutorials/how-to-get-contract-bytecode"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-blue-400 underline hover:text-blue-300"
+            >
+              How to find bytecode?
+            </a>
+            <button
+              type="button"
+              className="text-xs text-gray-400 bg-gray-800 rounded px-2 py-1 ml-2 cursor-not-allowed opacity-60"
+              disabled
+            >
+              Paste from Explorer (coming soon)
+            </button>
+          </div>
         </label>
         <label className="flex flex-col gap-2">
           <span className="text-white font-medium">Contract ABI</span>
