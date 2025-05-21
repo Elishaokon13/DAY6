@@ -22,7 +22,10 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   // Placeholder for animated button
-  const AnimatedButton = ({ children, ...props }: any) => (
+  const AnimatedButton = ({
+    children,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
     <button
       {...props}
       className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium transition-all duration-300 rounded-xl group bg-gradient-to-br from-[#232526] to-[#414345] hover:from-[#232526] hover:to-[#232526] text-white shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
