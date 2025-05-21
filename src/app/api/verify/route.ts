@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import fetch from 'node-fetch';
 import solc from 'solc';
 import { isAddress } from 'ethers';
 
 // Types for request and response
-interface VerifyRequest {
+export interface VerifyRequest {
   contractAddress: string;
   sourceCode: string;
   compilerVersion: string;

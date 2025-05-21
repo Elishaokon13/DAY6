@@ -1,11 +1,16 @@
 import { POST } from './route';
+import type { VerifyRequest } from './route';
 
 // Mock Request helper
-function createRequest(body: any) {
+function createRequest(body: Partial<VerifyRequest>) {
   return {
     json: async () => body,
   } as unknown as Request;
 }
+
+process.env.ETHERSCAN_API_KEY = 'dummy';
+process.env.BASESCAN_API_KEY = 'dummy';
+process.env.ARBISCAN_API_KEY = 'dummy';
 
 describe('/api/verify API Route', () => {
   it('returns error for missing fields', async () => {
