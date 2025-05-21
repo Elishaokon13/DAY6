@@ -21,6 +21,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [contractAddress, setContractAddress] = useState("");
+  const [sourceCode, setSourceCode] = useState("");
 
   // Placeholder for progress bar
   const Progress = () => (
@@ -73,7 +75,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     setResult(null);
-    // TODO: Call backend API
+    // TODO: Call backend API with contractAddress, sourceCode, abi, network
     setTimeout(() => {
       setLoading(false);
       setResult({ status: "success" });
@@ -120,6 +122,26 @@ export default function Home() {
               <option key={n.value} value={n.value}>{n.label}</option>
             ))}
           </select>
+        </label>
+        <label className="flex flex-col gap-2">
+          <span className="text-white font-medium">Contract Address</span>
+          <input
+            className="rounded-lg p-3 bg-black/40 text-white border border-white/10 focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter contract address..."
+            value={contractAddress}
+            onChange={e => setContractAddress(e.target.value)}
+            required
+          />
+        </label>
+        <label className="flex flex-col gap-2">
+          <span className="text-white font-medium">Source Code</span>
+          <textarea
+            className="rounded-lg p-3 bg-black/40 text-white border border-white/10 focus:ring-2 focus:ring-blue-500 resize-y min-h-[80px]"
+            placeholder="Paste contract source code here..."
+            value={sourceCode}
+            onChange={e => setSourceCode(e.target.value)}
+            required
+          />
         </label>
         <div className="flex flex-col gap-4 mt-2">
           <MovingBorderButton type="submit" disabled={loading}>
