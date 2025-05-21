@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 
+type VerificationResult = {
+  status: string;
+  // Add more fields as needed (e.g., network, compiler, optimization, etc.)
+};
+
 const NETWORKS = [
   { label: "Ethereum", value: "ethereum" },
   { label: "Base", value: "base" },
@@ -13,7 +18,7 @@ export default function Home() {
   const [abi, setAbi] = useState("");
   const [network, setNetwork] = useState(NETWORKS[0].value);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<VerificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Placeholder for animated button
@@ -48,7 +53,7 @@ export default function Home() {
   };
 
   // Placeholder for result card grid
-  const ResultGrid = ({ data }: { data: any }) => (
+  const ResultGrid = ({ data }: { data: VerificationResult }) => (
     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
       {/* Example result card */}
       <div className="rounded-xl bg-gradient-to-br from-[#232526] to-[#414345] p-4 shadow-lg flex flex-col gap-2 border border-white/10">
