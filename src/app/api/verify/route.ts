@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { ethers } from 'ethers';
 
 // Types for request and response
 interface VerifyRequest {
@@ -59,8 +58,9 @@ export async function POST(req: Request) {
     let explorerConfig;
     try {
       explorerConfig = getExplorerConfig(network);
-    } catch (err: any) {
-      return NextResponse.json({ status: 'error', errors: [err.message] }, { status: 400 });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      return NextResponse.json({ status: 'error', errors: [message] }, { status: 400 });
     }
 
     // --- Parse bytecode for metadata (stubbed for now) ---
@@ -86,7 +86,8 @@ export async function POST(req: Request) {
       warnings,
     };
     return NextResponse.json(response);
-  } catch (err: any) {
-    return NextResponse.json({ status: 'error', errors: [err.message || 'Unknown error'] }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ status: 'error', errors: [message] }, { status: 500 });
   }
 } 
