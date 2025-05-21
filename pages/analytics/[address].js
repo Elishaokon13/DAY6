@@ -9,6 +9,7 @@ import ChainIcon from '../../components/ChainIcon';
 import html2canvas from 'html2canvas';
 import { ethers } from 'ethers';
 import { Avatar } from '@coinbase/onchainkit/identity';
+import OnchainHeatmap from '../../components/OnchainHeatmap';
 
 const CHAIN_OPTIONS = [
   { value: 'base', label: 'Base', color: 'bg-base-blue', accent: 'text-base-blue' },
