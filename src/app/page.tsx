@@ -96,7 +96,7 @@ const ResultGrid = ({ data }: { data: VerifyResponse[] }) => (
   </div>
 );
 
-export default function Home(): JSX.Element {
+export default function Home() {
   const [contractAddress, setContractAddress] = useState<string>('');
   const [sourceCode, setSourceCode] = useState<string>('');
   const [compilerVersion, setCompilerVersion] = useState<string>('');
