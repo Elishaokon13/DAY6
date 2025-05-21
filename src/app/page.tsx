@@ -1,10 +1,12 @@
 'use client'
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "./lib/utils";
 
-// @ts-expect-error: monaco-editor types are not available
-const MonacoEditor: any = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+const MonacoEditor = dynamic<React.ComponentType<any>>(
+  () => import("@monaco-editor/react"),
+  { ssr: false }
+);
 
 // Types for mock results
 interface VerificationResult {
@@ -16,17 +18,17 @@ interface VerificationResult {
 }
 
 export default function Home() {
-  const [address, setAddress] = useState("");
-  const [source, setSource] = useState("");
-  const [compiler, setCompiler] = useState("");
-  const [optimization, setOptimization] = useState(false);
-  const [runs, setRuns] = useState(200);
-  const [loading, setLoading] = useState(false);
+  const [address, setAddress] = useState<string>("");
+  const [source, setSource] = useState<string>("");
+  const [compiler, setCompiler] = useState<string>("");
+  const [optimization, setOptimization] = useState<boolean>(false);
+  const [runs, setRuns] = useState<number>(200);
+  const [loading, setLoading] = useState<boolean>(false);
   const [results, setResults] = useState<VerificationResult[]>([]);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   // Placeholder compiler versions
-  const compilerVersions = [
+  const compilerVersions: string[] = [
     "v0.8.21+commit.d9974bed",
     "v0.8.20+commit.a1b79de6",
     "v0.7.6+commit.7338295f",
