@@ -120,7 +120,13 @@ export default function OnchainHeatmap({ dailyActivity = {}, currentStreak = 0, 
         </div>
 
         {/* Heatmap */}
-        <div className="flex overflow-x-auto">
+        <div className="flex overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {/* Hide scrollbar for Webkit browsers */}
+          <style jsx>{`
+            .scrollbar-hide::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
           {weeks.map((week, wi) => (
             <div key={wi} className="flex flex-col">
               {week.map((day, di) => (
