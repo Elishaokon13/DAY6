@@ -17,12 +17,13 @@ const NETWORKS = [
 export default function Home() {
   const [bytecode, setBytecode] = useState("");
   const [abi, setAbi] = useState("");
-  const [network, setNetwork] = useState(NETWORKS[0].value);
+  const [selectedNetworks, setSelectedNetworks] = useState<string[]>([NETWORKS[0].value]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [contractAddress, setContractAddress] = useState("");
   const [sourceCode, setSourceCode] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Placeholder for progress bar
   const Progress = () => (
@@ -69,13 +70,22 @@ export default function Home() {
     </div>
   );
 
+  // Custom multi-select dropdown for networks
+  const toggleNetwork = (value: string) => {
+    setSelectedNetworks((prev) =>
+      prev.includes(value)
+        ? prev.filter((n) => n !== value)
+        : [...prev, value]
+    );
+  };
+
   // Handle form submit (placeholder)
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setResult(null);
-    // TODO: Call backend API with contractAddress, sourceCode, abi, network
+    // TODO: Call backend API with contractAddress, sourceCode, abi, selectedNetworks
     setTimeout(() => {
       setLoading(false);
       setResult({ status: "success" });
@@ -139,17 +149,49 @@ export default function Home() {
             required
           />
         </label>
-        <label className="flex flex-col gap-2">
-          <span className="text-white font-medium">Network</span>
-          <select
-            className="rounded-lg p-3 bg-black/40 text-white border border-white/10 focus:ring-2 focus:ring-blue-500"
-            value={network}
-            onChange={e => setNetwork(e.target.value)}
-          >
-            {NETWORKS.map(n => (
-              <option key={n.value} value={n.value}>{n.label}</option>
-            ))}
-          </select>
+        {/* Custom Network Multi-Select Dropdown */}
+        <label className="flex flex-col gap-2 relative">
+          <span className="text-white font-medium">Network(s)</span>
+          <div className="relative">
+            <button
+              type="button"
+              className="w-full rounded-lg p-3 bg-black/40 text-white border border-white/10 focus:ring-2 focus:ring-blue-500 flex justify-between items-center"
+              onClick={() => setDropdownOpen((open) => !open)}
+            >
+              <span className="flex flex-wrap gap-2">
+                {selectedNetworks.length === 0 ? (
+                  <span className="text-gray-400">Select network(s)...</span>
+                ) : (
+                  selectedNetworks.map((n) => (
+                    <span key={n} className="bg-blue-700 text-xs px-2 py-1 rounded mr-1">
+                      {NETWORKS.find((net) => net.value === n)?.label}
+                    </span>
+                  ))
+                )}
+              </span>
+              <svg className={`w-4 h-4 ml-2 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            {dropdownOpen && (
+              <div className="absolute z-30 mt-2 w-full rounded-lg bg-black/90 border border-white/10 shadow-xl animate-fade-in">
+                {NETWORKS.map((n) => (
+                  <button
+                    type="button"
+                    key={n.value}
+                    className={`w-full text-left px-4 py-2 hover:bg-blue-800/40 flex items-center gap-2 ${selectedNetworks.includes(n.value) ? 'bg-blue-800/60 text-white' : 'text-gray-200'}`}
+                    onClick={() => toggleNetwork(n.value)}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedNetworks.includes(n.value)}
+                      readOnly
+                      className="accent-blue-500 mr-2"
+                    />
+                    {n.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </label>
         <label className="flex flex-col gap-2">
           <span className="text-white font-medium">Contract Address</span>
