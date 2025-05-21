@@ -28,7 +28,7 @@ const COMPILER_VERSIONS = [
   { label: 'Solidity v0.8.18', value: 'v0.8.18' },
 ] as const;
 
-const Progress = (): JSX.Element => (
+const Progress = () => (
   <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden mt-4">
     <div className="h-full bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse w-2/3" />
   </div>
@@ -40,7 +40,7 @@ const Alert = ({
 }: {
   type: 'success' | 'warning' | 'error';
   message: string;
-}): JSX.Element => {
+}) => {
   const color =
     type === 'success' ? 'bg-green-600' : type === 'warning' ? 'bg-yellow-600' : 'bg-red-600';
   return (
@@ -50,7 +50,7 @@ const Alert = ({
   );
 };
 
-const ResultGrid = ({ data }: { data: VerifyResponse[] }): JSX.Element => (
+const ResultGrid = ({ data }: { data: VerifyResponse[] }) => (
   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
     {data.map((result, index) => (
       <div
