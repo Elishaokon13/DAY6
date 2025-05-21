@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button as MovingBorderButton } from "@/components/ui/moving-border";
 
 type VerificationResult = {
   status: string;
@@ -135,9 +136,9 @@ export default function Home() {
           </select>
         </label>
         <div className="flex flex-col gap-4 mt-2">
-          <AnimatedButton type="submit" disabled={loading}>
+          <MovingBorderButton type="submit" disabled={loading}>
             {loading ? "Verifying..." : "Verify Contract"}
-          </AnimatedButton>
+          </MovingBorderButton>
           {loading && <Progress />}
           {error && <Alert type="error" message={error} />}
         </div>
