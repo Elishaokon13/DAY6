@@ -254,7 +254,7 @@ Inspired by a tweet from BD at Alchemy, the goal is to build a feature similar t
 
 ### Project Status Board (Onchain Commit Tracker)
 - [x] Backend: Group transactions by day for a wallet
-- [ ] Backend: API endpoint for streak data
+- [x] Backend: API endpoint for streak data
 - [ ] Backend: Optimize for large wallets
 - [ ] Frontend: Calendar heatmap visualization
 - [ ] Frontend: Display streak stats
@@ -265,7 +265,7 @@ Inspired by a tweet from BD at Alchemy, the goal is to build a feature similar t
 
 ## Current Status / Progress Tracking (Onchain Commit Tracker)
 - Implemented `groupTransactionsByDay` in `lib/blockchain.js`. This function fetches all transactions for a wallet/chain and returns a map of 'YYYY-MM-DD' (UTC) to transaction count, with optional date range filtering.
-- Next: Add API endpoint to expose this data and calculate streaks (current, longest, total active days).
+- Added `/api/streak` endpoint. It returns daily activity, current streak, longest streak, and total active days for a wallet and chain. Next: Consider optimizations for large wallets or begin frontend work for visualization.
 
 ## Executor's Feedback or Assistance Requests (Onchain Commit Tracker)
-- The grouping function is complete and ready for use. Please confirm if you want to proceed with the API endpoint for streak data, or if you want to test the grouping logic first. 
+- The streak API endpoint is now live. Please confirm if you want to test/optimize backend further, or proceed to frontend visualization and stats display. 
