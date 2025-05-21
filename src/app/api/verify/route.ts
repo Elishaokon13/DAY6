@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import fetch from 'node-fetch';
+import solc from 'solc';
+import { ethers } from 'ethers';
 
 // Types for request and response
 interface VerifyRequest {
-  bytecode: string;
-  abi: string;
+  contractAddress: string;
+  sourceCode: string;
+  compilerVersion: string;
   networks: ('ethereum' | 'base' | 'arbitrum')[];
 }
 
@@ -52,47 +55,98 @@ function getExplorerConfig(network: string): ExplorerConfig {
   }
 }
 
-// Helper: Extract metadata from bytecode
-function extractMetadata(bytecode: string): VerifyResponse['optimization'] {
-  if (!bytecode.startsWith('0x') || !/^[0-9a-fA-F]+$/.test(bytecode.slice(2))) {
-    throw new Error('Invalid bytecode format');
+// Helper: Compile source code and extract metadata
+function compileSourceCode(
+  sourceCode: string,
+  compilerVersion: string,
+  optimizationRuns: number = 200,
+): { bytecode: string; abi: string; optimization: VerifyResponse['optimization'] } {
+  try {
+    const input = {
+      language: 'Solidity',
+      sources: { 'contract.sol': { content: sourceCode } },
+      settings: {
+        optimizer: { enabled: optimizationRuns > 0, runs: optimizationRuns },
+        outputSelection: { '*': { '*': ['abi', 'evm.bytecode'] } },
+      },
+    };
+
+    // Load compiler version dynamically (requires solc version matching compilerVersion)
+    const solcCompiler = solc.compile(JSON.stringify(input), { version: compilerVersion });
+    const output = JSON.parse(solcCompiler);
+
+    if (output.errors && output.errors.some((err: any) => err.severity === 'error')) {
+      throw new Error('Compilation failed: ' + JSON.stringify(output.errors));
+    }
+
+    const contract = output.contracts['contract.sol'];
+    const contractName = Object.keys(contract)[0];
+    const bytecode = contract[contractName].evm.bytecode.object;
+    const abi = JSON.stringify(contract[contractName].abi);
+
+    return {
+      bytecode: '0x' + bytecode,
+      abi,
+      optimization: {
+        compilerVersion,
+        runs: optimizationRuns,
+        enabled: optimizationRuns > 0,
+      },
+    };
+  } catch (error) {
+    throw new Error(`Compilation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-  // TODO: Implement actual metadata parsing with ethers.js
-  return {
-    compilerVersion: 'v0.8.20',
-    runs: 200,
-    enabled: true,
-  };
 }
 
 // Helper: Check for metadata mismatch
-function checkMetadataMismatch(bytecode: string, abi: string): string[] {
+async function checkMetadataMismatch(
+  contractAddress: string,
+  bytecode: string,
+  network: string,
+): Promise<string[]> {
   const warnings: string[] = [];
   try {
-    JSON.parse(abi); // Validate ABI
-    // TODO: Compare bytecode metadata with ABI
-    // const metadataMismatch = false;
-    // if (metadataMismatch) warnings.push('Metadata mismatch detected');
+    // Fetch on-chain bytecode for the contract address
+    const explorerConfig = getExplorerConfig(network);
+    const params = new URLSearchParams({
+      module: 'contract',
+      action: 'getcontractcode',
+      address: contractAddress,
+      apikey: explorerConfig.key || '',
+    });
+    const response = await fetch(`${explorerConfig.url}?${params}`);
+    const data = (await response.json()) as { result: { Code: string } };
+
+    const onChainBytecode = data.result.Code;
+    if (!onChainBytecode) {
+      warnings.push(`No bytecode found for ${contractAddress} on ${network}`);
+      return warnings;
+    }
+
+    // Simplified: Compare bytecode (in production, compare metadata hashes)
+    if (onChainBytecode !== bytecode) {
+      warnings.push('Bytecode mismatch detected between compiled code and on-chain data');
+    }
   } catch {
-    warnings.push('Invalid ABI format');
+    warnings.push('Failed to verify bytecode on-chain');
   }
   return warnings;
 }
 
 // Helper: Verify contract on explorer
-async function verifyOnExplorer(
-  bytecode: string,
-  abi: string,
+async functionverifyOnExplorer(
+  contractAddress: string,
+  sourceCode: string,
   explorerConfig: ExplorerConfig,
   optimization: VerifyResponse['optimization'],
 ): Promise<Pick<VerifyResponse, 'status' | 'explorer' | 'errors'>> {
   const params = new URLSearchParams({
     module: 'contract',
     action: 'verifysourcecode',
-    contractaddress: '', // Optional
-    sourceCode: '', // Optional
-    codeformat: 'solidity-standard-json-input',
-    contractname: '', // Optional
+    contractaddress: contractAddress,
+    sourceCode,
+    codeformat: 'solidity-single-file',
+    contractname: 'contract.sol', // Simplified
     compilerversion: optimization.compilerVersion,
     optimizationUsed: optimization.enabled ? '1' : '0',
     runs: optimization.runs.toString(),
@@ -110,7 +164,7 @@ async function verifyOnExplorer(
 
 /**
  * Verifies a smart contract on specified blockchain explorers.
- * @param req - Request containing bytecode, ABI, and networks.
+ * @param req - Request containing contract address, source code, compiler version, and networks.
  * @returns Array of verification results or error response.
  */
 export async function POST(req: Request): Promise<NextResponse> {
@@ -128,58 +182,39 @@ export async function POST(req: Request): Promise<NextResponse> {
     }
 
     const body = (await req.json()) as VerifyRequest;
-    const { bytecode, abi, networks } = body;
-    if (!bytecode || !abi || !networks || networks.length === 0) {
+    const { contractAddress, sourceCode, compilerVersion, networks } = body;
+    if (!contractAddress || !sourceCode || !compilerVersion || !networks || networks.length === 0) {
       return NextResponse.json(
         { status: 'error', errors: ['Missing required fields'] },
         { status: 400 },
       );
     }
 
-    // Validate inputs
-    try {
-      JSON.parse(abi);
-      if (!bytecode.startsWith('0x') || !/^[0-9a-fA-F]+$/.test(bytecode.slice(2))) {
-        return NextResponse.json(
-          { status: 'error', errors: ['Invalid bytecode format'] },
-          { status: 400 },
-        );
-      }
-    } catch {
+    // Validate contract address
+    if (!ethers.isAddress(contractAddress)) {
       return NextResponse.json(
-        { status: 'error', errors: ['Invalid ABI format'] },
+        { status: 'error', errors: ['Invalid contract address'] },
         { status: 400 },
       );
     }
 
+    // Compile source code
+    const { bytecode, optimization } = compileSourceCode(sourceCode, compilerVersion);
     const results: VerifyResponse[] = [];
-    const metadata = extractMetadata(bytecode);
-    const warnings = checkMetadataMismatch(bytecode, abi);
 
     // Verify on each network
     for (const network of networks) {
       try {
         const explorerConfig = getExplorerConfig(network);
-        const result = await verifyOnExplorer(bytecode, abi, explorerConfig, metadata);
+        const warnings = await checkMetadataMismatch(contractAddress, bytecode, network);
+        const result = await verifyOnExplorer(
+          contractAddress,
+          sourceCode,
+          explorerConfig,
+          optimization,
+        );
         results.push({
           ...result,
-          optimization: metadata,
+          optimization,
           warnings: warnings.length > 0 ? warnings : undefined,
         });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        results.push({
-          status: 'error',
-          explorer: network,
-          optimization: metadata,
-          errors: [message],
-        });
-      }
-    }
-
-    return NextResponse.json(results);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ status: 'error', errors: [message] }, { status: 500 });
-  }
-}
