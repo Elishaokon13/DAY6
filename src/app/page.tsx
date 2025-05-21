@@ -1,7 +1,8 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
-const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+// @ts-expect-error: monaco-editor types are not available
+const MonacoEditor: any = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
 export default function Home() {
   const [address, setAddress] = useState("");
@@ -40,7 +41,7 @@ export default function Home() {
               height="100%"
               defaultLanguage="solidity"
               value={source}
-              onChange={v => setSource(v || "")}
+              onChange={(v: string | undefined) => setSource(v || "")}
               options={{ minimap: { enabled: false } }}
             />
           </div>
