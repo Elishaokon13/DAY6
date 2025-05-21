@@ -283,7 +283,7 @@ export default function AnalyticsPage() {
               className={`w-full flex items-center justify-between font-pixel text-xs xs:text-base sm:text-lg rounded-lg px-2 xs:px-3 sm:px-4 py-2 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 ${chainTheme.color} text-white shadow transition`}
               onClick={() => setDropdownOpen(v => !v)}
               aria-haspopup="listbox"
-              aria-expanded={dropdownOpen ? 'true' : 'false'}"
+              aria-expanded={dropdownOpen ? 'true' : 'false'}
             >
               <span className="flex items-center gap-2">
                 <ChainIcon chain={selectedChain} size={18} />
