@@ -1,4 +1,4 @@
-
+'use client'
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
