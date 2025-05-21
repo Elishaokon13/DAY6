@@ -20,8 +20,14 @@ interface VerifyResponse {
   errors?: string[];
 }
 
+interface ExplorerConfig {
+  url: string;
+  key: string | undefined;
+  explorer: string;
+}
+
 // Helper: Get explorer API URL and key
-function getExplorerConfig(network: string) {
+function getExplorerConfig(network: string): ExplorerConfig {
   switch (network) {
     case 'ethereum':
       return {
@@ -46,8 +52,8 @@ function getExplorerConfig(network: string) {
   }
 }
 
-// Helper: Extract metadata from bytecode (stubbed)
-function extractMetadata(bytecode: string) {
+// Helper: Extract metadata from bytecode
+function extractMetadata(bytecode: string): VerifyResponse['optimization'] {
   if (!bytecode.startsWith('0x') || !/^[0-9a-fA-F]+$/.test(bytecode.slice(2))) {
     throw new Error('Invalid bytecode format');
   }
@@ -67,15 +73,20 @@ function checkMetadataMismatch(bytecode: string, abi: string): string[] {
     // TODO: Compare bytecode metadata with ABI
     // const metadataMismatch = false;
     // if (metadataMismatch) warnings.push('Metadata mismatch detected');
-  } catch (err) {
+  } catch {
     warnings.push('Invalid ABI format');
   }
   return warnings;
 }
 
 // Helper: Verify contract on explorer
-async function verifyOnExplorer(bytecode: string, abi: string, explorerConfig: any, optimization: any) {
-  const params = {
+async function verifyOnExplorer(
+  bytecode: string,
+  abi: string,
+  explorerConfig: ExplorerConfig,
+  optimization: VerifyResponse['optimization'],
+): Promise<Pick<VerifyResponse, 'status' | 'explorer' | 'errors'>> {
+  const params = new URLSearchParams({
     module: 'contract',
     action: 'verifysourcecode',
     contractaddress: '', // Optional
@@ -85,18 +96,16 @@ async function verifyOnExplorer(bytecode: string, abi: string, explorerConfig: a
     compilerversion: optimization.compilerVersion,
     optimizationUsed: optimization.enabled ? '1' : '0',
     runs: optimization.runs.toString(),
-    apikey: explorerConfig.key,
-  };
+    apikey: explorerConfig.key || '',
+  });
 
-  const query = new URLSearchParams(params).toString();
-  const response = await fetch(`${explorerConfig.url}?${query}`, { method: 'POST' });
-  const data = await response.json();
+  const response = await fetch(`${explorerConfig.url}?${params}`, { method: 'POST' });
+  const data = (await response.json()) as { status: string; result: string };
 
   if (data.status === '1') {
     return { status: 'success', explorer: explorerConfig.explorer };
-  } else {
-    return { status: 'error', explorer: explorerConfig.explorer, errors: [data.result] };
   }
+  return { status: 'error', explorer: explorerConfig.explorer, errors: [data.result] };
 }
 
 /**
@@ -104,27 +113,43 @@ async function verifyOnExplorer(bytecode: string, abi: string, explorerConfig: a
  * @param req - Request containing bytecode, ABI, and networks.
  * @returns Array of verification results or error response.
  */
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<NextResponse> {
   try {
     // Validate API keys
-    if (!process.env.ETHERSCAN_API_KEY || !process.env.BASESCAN_API_KEY || !process.env.ARBISCAN_API_KEY) {
-      return NextResponse.json({ status: 'error', errors: ['API keys not configured'] }, { status: 500 });
+    if (
+      !process.env.ETHERSCAN_API_KEY ||
+      !process.env.BASESCAN_API_KEY ||
+      !process.env.ARBISCAN_API_KEY
+    ) {
+      return NextResponse.json(
+        { status: 'error', errors: ['API keys not configured'] },
+        { status: 500 },
+      );
     }
 
-    const body = await req.json() as VerifyRequest;
+    const body = (await req.json()) as VerifyRequest;
     const { bytecode, abi, networks } = body;
     if (!bytecode || !abi || !networks || networks.length === 0) {
-      return NextResponse.json({ status: 'error', errors: ['Missing required fields'] }, { status: 400 });
+      return NextResponse.json(
+        { status: 'error', errors: ['Missing required fields'] },
+        { status: 400 },
+      );
     }
 
     // Validate inputs
     try {
       JSON.parse(abi);
       if (!bytecode.startsWith('0x') || !/^[0-9a-fA-F]+$/.test(bytecode.slice(2))) {
-        return NextResponse.json({ status: 'error', errors: ['Invalid bytecode format'] }, { status: 400 });
+        return NextResponse.json(
+          { status: 'error', errors: ['Invalid bytecode format'] },
+          { status: 400 },
+        );
       }
-    } catch (err) {
-      return NextResponse.json({ status: 'error', errors: ['Invalid ABI format'] }, { status: 400 });
+    } catch {
+      return NextResponse.json(
+        { status: 'error', errors: ['Invalid ABI format'] },
+        { status: 400 },
+      );
     }
 
     const results: VerifyResponse[] = [];
@@ -138,12 +163,11 @@ export async function POST(req: Request) {
         const result = await verifyOnExplorer(bytecode, abi, explorerConfig, metadata);
         results.push({
           ...result,
-          status: result.status === "success" ? "success" : "error",
           optimization: metadata,
           warnings: warnings.length > 0 ? warnings : undefined,
         });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
         results.push({
           status: 'error',
           explorer: network,
@@ -154,8 +178,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(results);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ status: 'error', errors: [message] }, { status: 500 });
   }
 }
