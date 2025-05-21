@@ -12,6 +12,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.12.1",
     "next": "15.3.2",
+    "node-fetch": "^3.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.3.0"
